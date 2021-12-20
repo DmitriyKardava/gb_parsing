@@ -82,7 +82,7 @@ if db['vacancies'].estimated_document_count() == 0:
 else:
     print(f"В базе {db['vacancies'].estimated_document_count()} вакансий")
     for vacancy in vacancy_list:
-        x = mongo_vacancy = mongo_vacancies.find_one(vacancy)
+        x = mongo_vacancies.find_one(vacancy)
         if not x:
             try:
                 mongo_vacancies.insert_one(vacancy)
