@@ -7,14 +7,12 @@ def get_vacancies(salary, exchange_rates):
     mongo_vacancies = db['vacancies']
     for vacancy in mongo_vacancies.find():
         if vacancy['salary_from']:
-            _s = vacancy['salary_from'] * exchange_rates.get(vacancy['salary_cur']) if exchange_rates.get(vacancy['salary_cur'])\
-                else vacancy['salary_from']
+            _s = vacancy['salary_from'] * exchange_rates.get(vacancy['salary_cur'], 1)
             if _s >= salary:
                 print(vacancy)
                 continue
         if vacancy['salary_to']:
-            _s = vacancy['salary_to'] * exchange_rates.get(vacancy['salary_cur']) if exchange_rates.get(vacancy['salary_cur'])\
-                else vacancy['salary_to']
+            _s = vacancy['salary_to'] * exchange_rates.get(vacancy['salary_cur'], 1)
             if salary <= _s:
                 print(vacancy)
     client.close()
