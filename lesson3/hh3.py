@@ -2,6 +2,8 @@ from pymongo import MongoClient
 from bs4 import BeautifulSoup as bs
 import requests
 from urllib.parse import urlparse
+import datetime
+
 
 client = MongoClient('127.0.0.1', 27017)
 db = client['hh']
@@ -64,32 +66,41 @@ while True:
                 salary = None
 
             site = main_url
+            vacancy_data['_id'] = hh_id
             vacancy_data['name'] = name
             vacancy_data['salary_from'] = salary_from
             vacancy_data['salary_to'] = salary_to
             vacancy_data['salary_cur'] = salary_cur
             vacancy_data['url'] = url
-            vacancy_data['hh_id'] = hh_id
             vacancy_data['site'] = site
             vacancy_list.append(vacancy_data)
     else:
         break
-doc_count = 0;
+add_doc_count = 0;
+edit_doc_count = 0;
 if db['vacancies'].estimated_document_count() == 0:
     mongo_vacancies.insert_many(vacancy_list)
     print("В базе нет вакансий")
-    doc_count = len(vacancy_list)
+    add_doc_count = len(vacancy_list)
 else:
     print(f"В базе {db['vacancies'].estimated_document_count()} вакансий")
     for vacancy in vacancy_list:
-        x = mongo_vacancies.find_one(vacancy)
+        x = mongo_vacancies.find_one({'_id': vacancy.get('_id')})
         if not x:
             try:
                 mongo_vacancies.insert_one(vacancy)
-                doc_count += 1
-                print(vacancy)
+                add_doc_count += 1
             except Exception as e:
                 print(e)
-                pass
-print(f"Добавлено {doc_count} вакансий")
+        else:
+            try:
+                if x != vacancy:
+                    mongo_vacancies.update_one({'_id': x['_id']}, {"$set": vacancy}, upsert=True)
+                    print(x)
+                    edit_doc_count += 1
+            except Exception as e:
+                print(e)
+
+print(f"Добавлено {add_doc_count} вакансий")
+print(f"Обновлено {edit_doc_count} вакансий")
 client.close()
