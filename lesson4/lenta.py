@@ -87,7 +87,7 @@ for item in mail_news:
     _mail_news = dom.xpath(f"//div[@data-news-id='{news_id}']")
     for _item in _mail_news:
         source = _item.xpath(".//a/@href")[0]
-        text = _item.xpath(".//span[contains(@class,'hdr__text')]/h1/text()")[0]
+        text = _item.xpath(".//span[@class='hdr__text']/h1/text()")[0]
         url = item
         date = _item.xpath("//span/@datetime")
         news['text'] = text
