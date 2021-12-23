@@ -31,7 +31,6 @@ dom = html.fromstring(response.text)
 response.close()
 all_news = []
 lenta_news = dom.xpath("//div[contains(@class,'topnews')]//a[contains(@class,'_topnews')]")
-
 for item in lenta_news:
     news = {}
     text = item.xpath("./div/span/text()|./div/h3/text()")[0]
@@ -70,5 +69,31 @@ for item in yandex_news:
     news['source'] = source
     news['hash'] = get_id_for_dict(news)
     all_news.append(news)
+add_news(all_news)
 
+header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'}
+news_url = 'https://news.mail.ru/'
+response = requests.get(news_url, headers=header)
+dom = html.fromstring(response.text)
+response.close()
+all_news = []
+mail_news = dom.xpath("//table[contains(@class,'daynews__inner')]//td/div/a/@href")
+for item in mail_news:
+    news = {}
+    response = requests.get(item, headers=header)
+    dom = html.fromstring(response.text)
+    response.close()
+    news_id = urlparse(item).path.split('/')[2]
+    _mail_news = dom.xpath(f"//div[@data-news-id='{news_id}']")
+    for _item in _mail_news:
+        source = _item.xpath(".//a/@href")[0]
+        text = _item.xpath(".//span[contains(@class,'hdr__text')]/h1/text()")[0]
+        url = item
+        date = _item.xpath("//span/@datetime")
+        news['text'] = text
+        news['url'] = url
+        news['date'] = date
+        news['source'] = source
+        news['hash'] = get_id_for_dict(news)
+        all_news.append(news)
 add_news(all_news)
