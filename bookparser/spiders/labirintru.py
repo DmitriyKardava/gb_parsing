@@ -28,8 +28,12 @@ class LabirintruSpider(scrapy.Spider):
 
     def book_parse(self, response: HtmlResponse):
         name = response.xpath("//h1//text()").get()
-        price = response.xpath("//span[@class='buying-priceold-val-number']/text()").get()
+
         discount = response.xpath("//span[@class='buying-pricenew-val-number']/text()").get()
+        if discount:
+            price = response.xpath("//span[@class='buying-priceold-val-number']/text()").get()
+        else:
+            price = response.xpath("//span[@class='buying-price-val-number']/text()").get()
         rating = response.xpath("//div[@id='rate']/text()").get()
         authors = response.xpath("//div[@class='authors']/a/text()").getall()
         url = response.url

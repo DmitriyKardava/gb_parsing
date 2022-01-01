@@ -14,6 +14,15 @@ class BookparserPipeline:
         self.mongobase = client.books0101
 
     def process_item(self, item, spider):
+        try:
+            print(item['price'])
+            item['price'] = float(item['price'])
+        except:
+            pass
+        try:
+            item['discount'] = float(item['discount'])
+        except:
+            pass
         collection = self.mongobase[spider.name]
-        collection.insert_one(item)
+        collection.update_one({'_id': item['_id']}, {'$set': item}, upsert=True)
         return item
